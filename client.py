@@ -25,11 +25,18 @@ def send_messages():
     while True:
         try:
             message = input("")
-            client.send(f"{nickname}: {message}".encode('ascii'))
+            if message.startswith('/exit'):
+                client.send('/exit'.encode('ascii'))
+                print("You left the chat.")
+                client.close()
+                break
+            else:
+                client.send(f"{nickname}: {message}".encode('ascii'))
         except Exception as e:
             print("Disconnected from server.")
             client.close()
             break
+
 
 # Start threads for receiving and sending
 thread_receive = threading.Thread(target=receive_messages)

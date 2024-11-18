@@ -22,10 +22,21 @@ def handle_client(client):
     """Handle communication with a single client."""
     while True:
         try:
-            message = client.recv(1024)
-            if not message:
+            message = client.recv(1024).decode('ascii')
+            if message.startswith('/list'):
+                client.send(f"Users online: {', '.join(nicknames)}".encode('ascii'))
+            elif message.startswith('/pm'):
+                _, target_nickname, private_message = message.split(" ", 2)
+                if target_nickname in nicknames:
+                    target_index = nicknames.index(target_nickname)
+                    target_client = clients[target_index]
+                    target_client.send(f"PM from {nicknames[clients.index(client)]}: {private_message}".encode('ascii'))
+                else:
+                    client.send("User not found.".encode('ascii'))
+            elif message.startswith('/exit'):
                 raise ConnectionError
-            broadcast(message, exclude_client=client)
+            else:
+                broadcast(message.encode('ascii'), exclude_client=client)
         except Exception as e:
             index = clients.index(client)
             nickname = nicknames[index]
