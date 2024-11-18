@@ -1,5 +1,6 @@
 import socket
 import threading
+import ssl
 
 # Basic server setup
 host = '127.0.0.1'
@@ -8,6 +9,10 @@ port = 7976
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
 server.listen()
+
+# SSL wrapping
+context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+server = context.wrap_socket(server, server_side=True, keyfile="key.pem", certfile="cert.pem")
 
 clients = []
 nicknames = []
